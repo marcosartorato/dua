@@ -1,0 +1,148 @@
+name: "Epic"
+description: "Track a large body of work made of multiple issues"
+title: "epic: <short summary>"
+labels:
+  - "type: epic"
+  - "status: triage"
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template to describe an initiative that spans multiple issues and/or teams.
+
+  - type: input
+    id: summary
+    attributes:
+      label: Short summary
+      description: One line that captures the essence of the epic.
+      placeholder: e.g., Revamp onboarding flow across web + mobile
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / Opportunity
+      description: What user or business problem are we solving?
+      placeholder: Conversion from signup→activation is 27%; drop-off at step 2 is 40%…
+    validations:
+      required: true
+
+  - type: textarea
+    id: value
+    attributes:
+      label: Business value / Goals
+      description: Describe the outcomes and why this matters now.
+      placeholder: Improve D1 activation to 60%; reduce support tickets by 20%…
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: In scope
+      placeholder: Web onboarding screens, mobile parity, event instrumentation…
+    validations:
+      required: true
+
+  - type: textarea
+    id: out_of_scope
+    attributes:
+      label: Out of scope
+      placeholder: Billing flows, SSO setup, legacy admin panel…
+
+  - type: textarea
+    id: user_stories
+    attributes:
+      label: User stories (breakdown)
+      description: Bullet list of stories/issues; link to child issues if already created.
+      placeholder: |
+        - As a new user, I can sign up with Google (#123)
+        - As a returning user, I can resume onboarding where I left off (#124)
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Definition of Done / Acceptance criteria
+      description: Use bullet points or Given/When/Then.
+      placeholder: |
+        - Given a first-time visitor, when they sign up, they reach the checklist in <2 min
+        - Telemetry covers steps A–D with 99% event delivery
+    validations:
+      required: true
+
+  - type: textarea
+    id: milestones
+    attributes:
+      label: Milestones & timeline
+      description: High-level phases with target dates.
+      placeholder: |
+        - M1: UX finalized — 2025-01-15
+        - M2: Web GA — 2025-02-10
+        - M3: Mobile GA — 2025-03-05
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      placeholder: Auth service v2, analytics schema update, vendor approval…
+
+  - type: checkboxes
+    id: impact
+    attributes:
+      label: Impact & considerations
+      options:
+        - label: Affects public API or is potentially breaking
+        - label: Requires cross-team coordination
+        - label: Has security/privacy implications
+        - label: Requires data migration
+        - label: Requires documentation/enablement
+
+  - type: textarea
+    id: risks
+    attributes:
+      label: Risks & mitigations
+      placeholder: Performance on low-end devices; mitigation—lazy-load assets…
+
+  - type: textarea
+    id: metrics
+    attributes:
+      label: Success metrics / KPIs
+      placeholder: Activation +25%, support tickets −20%, NPS +5…
+
+  - type: textarea
+    id: rollouts
+    attributes:
+      label: Rollout plan
+      placeholder: Canary → staged % rollout → full GA; rollback criteria…
+
+  - type: textarea
+    id: links
+    attributes:
+      label: Links & resources
+      placeholder: Product brief, Figma frames, dashboards, related PRDs, discussion threads…
+
+  - type: input
+    id: owner
+    attributes:
+      label: Epic owner (DRI)
+      placeholder: @username or team-handle
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional notes
+      placeholder: Anything else reviewers should know.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Submission checklist
+      options:
+        - label: I’ve linked or listed child issues where possible
+        - label: Acceptance criteria are complete
+        - label: Metrics/KPIs are defined
+        - label: Risk/mitigation is documented

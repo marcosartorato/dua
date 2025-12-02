@@ -1,0 +1,130 @@
+name: "Feature request"
+description: "Propose a new capability or improvement"
+title: "feat: <short summary>"
+labels:
+  - "type: feature"
+  - "status: triage"
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a feature! Please fill out the sections below so we can understand the problem and the value.
+
+  - type: input
+    id: summary
+    attributes:
+      label: Short summary
+      description: One sentence describing the feature.
+      placeholder: e.g., Add dark mode toggle to settings
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you trying to solve?
+      description: Describe the user pain or opportunity. Avoid proposing solutions here.
+      placeholder: When using the app at night, the bright UI causes eye strain…
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Outline the feature at a high level. Include UX notes or pseudo flows if helpful.
+      placeholder: Add a theme toggle in Settings > Appearance. Persist choice per user…
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: What other approaches did you consider and why didn’t they work?
+      placeholder: System-level theme detection; browser extensions; custom CSS…
+
+  - type: checkboxes
+    id: impact
+    attributes:
+      label: Impact & considerations
+      options:
+        - label: This change affects the public API or is potentially breaking
+        - label: Has security or privacy implications
+        - label: Requires data migration
+        - label: Requires documentation updates
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Use bullet points or Gherkin-style Given/When/Then.
+      placeholder: |
+        - Given I’m on Settings, when I toggle Dark Mode, the app theme updates immediately
+        - Given I return later, my theme preference persists across sessions
+    validations:
+      required: true
+
+  - type: input
+    id: metrics
+    attributes:
+      label: Success metrics / KPIs
+      description: How will we know this feature is successful?
+      placeholder: +20% settings engagement; 30% adoption of dark mode in 30 days
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority (triage)
+      options:
+        - P0 — Critical
+        - P1 — High
+        - P2 — Medium
+        - P3 — Low
+      default: 2
+
+  - type: dropdown
+    id: effort
+    attributes:
+      label: Estimated effort (rough)
+      options:
+        - XS (≤1 day)
+        - S (1–3 days)
+        - M (3–5 days)
+        - L (1–2 weeks)
+        - XL (2+ weeks)
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area / Scope
+      options:
+        - backend
+        - api
+        - infra/devops
+        - docs
+        - other
+
+  - type: textarea
+    id: deps
+    attributes:
+      label: Dependencies / risks
+      placeholder: Depends on new auth service; risk of perf regression on low-end devices…
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Links to mockups, prior issues, PRDs, or related discussions.
+      placeholder: Link Slack threads, specs, etc.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Submission checklist
+      options:
+        - label: I’ve searched for existing issues and PRs
+          required: true
+        - label: I’ve filled out the acceptance criteria
+          required: true

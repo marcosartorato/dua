@@ -9,6 +9,8 @@ import (
 	"time"
 
 	"github.com/marcosartorato/dua/internal/scan"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestRun_BasicTotals(t *testing.T) {
@@ -22,42 +24,23 @@ func TestRun_BasicTotals(t *testing.T) {
 	//   a.txt (10 bytes)
 	//   sub/
 	//     b.txt (5 bytes)
-	if err := os.WriteFile(filepath.Join(root, "a.txt"), []byte("1234567890"), 0644); err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, os.WriteFile(filepath.Join(root, "a.txt"), []byte("1234567890"), 0644))
 	sub := filepath.Join(root, "sub")
-	if err := os.Mkdir(sub, 0755); err != nil {
-		t.Fatal(err)
-	}
-	if err := os.WriteFile(filepath.Join(sub, "b.txt"), []byte("12345"), 0644); err != nil {
-		t.Fatal(err)
-	}
-
+	require.NoError(t, os.Mkdir(sub, 0755))
+	require.NoError(t, os.WriteFile(filepath.Join(sub, "b.txt"), []byte("12345"), 0644))
 	fixedNow := time.Date(2024, 1, 1, 12, 0, 0, 0, time.UTC)
 	nowFn := func() time.Time { return fixedNow }
 
 	// Run scan.
 	res, warnings, err := scan.Run(context.Background(), root, scan.Options{}, nowFn)
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	if len(warnings) != 0 {
-		t.Fatalf("expected no warnings, got %v", warnings)
-	}
+	require.NoError(t, err)
+	assert.Empty(t, warnings)
 
 	// Check totals.
-	if res.TotalFiles != 2 {
-		t.Fatalf("TotalFiles = %d, want 2", res.TotalFiles)
-	}
-	if res.TotalDirs != 2 { // root + sub
-		t.Fatalf("TotalDirs = %d, want 2", res.TotalDirs)
-	}
-	if res.TotalSize != 15 {
-		t.Fatalf("TotalSize = %d, want 15", res.TotalSize)
-	}
-	if !res.Generated.Equal(fixedNow) {
-		t.Fatalf("Generated = %v, want %v", res.Generated, fixedNow)
-	}
+	assert.Equal(t, int64(2), res.TotalFiles)
+	assert.Equal(t, int64(2), res.TotalDirs) // root + sub
+	assert.Equal(t, int64(15), res.TotalSize)
+	assert.True(t, res.Generated.Equal(fixedNow))
 }
 
 func TestRun_EmptyDirectory(t *testing.T) {
@@ -69,25 +52,14 @@ func TestRun_EmptyDirectory(t *testing.T) {
 	nowFn := func() time.Time { return fixedNow }
 
 	res, warnings, err := scan.Run(context.Background(), root, scan.Options{}, nowFn)
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	if len(warnings) != 0 {
-		t.Fatalf("expected no warnings, got %v", warnings)
-	}
 
-	if res.TotalFiles != 0 {
-		t.Fatalf("TotalFiles = %d, want 0", res.TotalFiles)
-	}
-	if res.TotalDirs != 1 { // root only
-		t.Fatalf("TotalDirs = %d, want 1", res.TotalDirs)
-	}
-	if res.TotalSize != 0 {
-		t.Fatalf("TotalSize = %d, want 0", res.TotalSize)
-	}
-	if !res.Generated.Equal(fixedNow) {
-		t.Fatalf("Generated = %v, want %v", res.Generated, fixedNow)
-	}
+	require.NoError(t, err)
+	assert.Empty(t, warnings)
+
+	assert.Equal(t, int64(0), res.TotalFiles)
+	assert.Equal(t, int64(1), res.TotalDirs) // root only
+	assert.Equal(t, int64(0), res.TotalSize)
+	assert.Equal(t, fixedNow, res.Generated)
 }
 
 func TestRun_InvalidRoot(t *testing.T) {
@@ -96,9 +68,7 @@ func TestRun_InvalidRoot(t *testing.T) {
 	nowFn := func() time.Time { return time.Unix(0, 0).UTC() }
 
 	_, _, err := scan.Run(context.Background(), "/path/does/not/exist", scan.Options{}, nowFn)
-	if err == nil {
-		t.Fatalf("expected error for invalid root, got nil")
-	}
+	assert.Error(t, err)
 }
 
 func TestRun_ContextCancel(t *testing.T) {
@@ -119,7 +89,5 @@ func TestRun_ContextCancel(t *testing.T) {
 	nowFn := func() time.Time { return time.Unix(0, 0).UTC() }
 
 	_, _, err := scan.Run(ctx, root, scan.Options{}, nowFn)
-	if err == nil {
-		t.Fatalf("expected context cancellation error, got nil")
-	}
+	assert.Error(t, err)
 }

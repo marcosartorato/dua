@@ -2,11 +2,13 @@ package format_test
 
 import (
 	"bytes"
-	"strings"
 	"testing"
 
 	"github.com/marcosartorato/dua/internal/format"
 	"github.com/marcosartorato/dua/internal/scan"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestPrintTable_OK(t *testing.T) {
@@ -20,25 +22,19 @@ func TestPrintTable_OK(t *testing.T) {
 		TotalFiles: 7,
 		TotalDirs:  2,
 	}
-	wantLines := []string{
-		"Path:   /tmp\n",
-		"Size:   12345 bytes\n",
-		"Files:  7\n",
-		"Dirs:   2\n",
-	}
 
 	// Run PrintTable.
-	if err := format.PrintTable(&buf, res); err != nil {
-		t.Fatalf("expected nil error, got %v", err)
-	}
+	err := format.PrintTable(&buf, res)
+	require.NoError(t, err)
 
 	// Check output.
-	got := buf.String()
-	for _, line := range wantLines {
-		if !strings.Contains(got, line) {
-			t.Fatalf("output missing line %q\n--- got ---\n%s\n---", line, got)
-		}
-	}
+	assert.Equal(t,
+		"Path:   /tmp\n"+
+			"Size:   12345 bytes\n"+
+			"Files:  7\n"+
+			"Dirs:   2\n",
+		buf.String(),
+	)
 }
 
 func TestPrintTable_WrongWriterType(t *testing.T) {
@@ -49,12 +45,8 @@ func TestPrintTable_WrongWriterType(t *testing.T) {
 	err := format.PrintTable(&buf, "not a scan.Result")
 
 	// Check output.
-	if err == nil {
-		t.Fatalf("expected error, got nil")
-	}
-	if buf.Len() != 0 {
-		t.Fatalf("expected no output written on error, got: %q", buf.String())
-	}
+	require.Error(t, err)
+	assert.Empty(t, buf.String())
 }
 
 func TestPrintTable_WrongType(t *testing.T) {
@@ -69,7 +61,7 @@ func TestPrintTable_WrongType(t *testing.T) {
 	}
 
 	err := format.PrintTable(&buf, res)
-	if err == nil {
-		t.Fatalf("expected error for *scan.Result, got nil")
-	}
+
+	require.Error(t, err)
+	assert.Empty(t, buf.String())
 }

@@ -2,9 +2,11 @@ package scan_test
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/marcosartorato/dua/internal/scan"
 )
@@ -31,8 +33,11 @@ func TestRun_BasicTotals(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	fixedNow := time.Date(2024, 1, 1, 12, 0, 0, 0, time.UTC)
+	nowFn := func() time.Time { return fixedNow }
+
 	// Run scan.
-	res, warnings, err := scan.Run(context.Background(), root, scan.Options{})
+	res, warnings, err := scan.Run(context.Background(), root, scan.Options{}, nowFn)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -50,6 +55,9 @@ func TestRun_BasicTotals(t *testing.T) {
 	if res.TotalSize != 15 {
 		t.Fatalf("TotalSize = %d, want 15", res.TotalSize)
 	}
+	if !res.Generated.Equal(fixedNow) {
+		t.Fatalf("Generated = %v, want %v", res.Generated, fixedNow)
+	}
 }
 
 func TestRun_EmptyDirectory(t *testing.T) {
@@ -57,7 +65,10 @@ func TestRun_EmptyDirectory(t *testing.T) {
 
 	root := t.TempDir()
 
-	res, warnings, err := scan.Run(context.Background(), root, scan.Options{})
+	fixedNow := time.Date(2024, 2, 2, 0, 0, 0, 0, time.UTC)
+	nowFn := func() time.Time { return fixedNow }
+
+	res, warnings, err := scan.Run(context.Background(), root, scan.Options{}, nowFn)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -74,12 +85,17 @@ func TestRun_EmptyDirectory(t *testing.T) {
 	if res.TotalSize != 0 {
 		t.Fatalf("TotalSize = %d, want 0", res.TotalSize)
 	}
+	if !res.Generated.Equal(fixedNow) {
+		t.Fatalf("Generated = %v, want %v", res.Generated, fixedNow)
+	}
 }
 
 func TestRun_InvalidRoot(t *testing.T) {
 	t.Parallel()
 
-	_, _, err := scan.Run(context.Background(), "/path/does/not/exist", scan.Options{})
+	nowFn := func() time.Time { return time.Unix(0, 0).UTC() }
+
+	_, _, err := scan.Run(context.Background(), "/path/does/not/exist", scan.Options{}, nowFn)
 	if err == nil {
 		t.Fatalf("expected error for invalid root, got nil")
 	}
@@ -92,15 +108,17 @@ func TestRun_ContextCancel(t *testing.T) {
 	root := t.TempDir()
 
 	// Create many files to give WalkDir something to do
-	for i := 0; i < 100; i++ {
-		name := filepath.Join(root, "f"+string(rune('a'+i))+".txt")
+	for i := 0; i < 2000; i++ {
+		name := filepath.Join(root, fmt.Sprintf("f%06d.txt", i))
 		_ = os.WriteFile(name, []byte("data"), 0644)
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel() // cancel immediately
 
-	_, _, err := scan.Run(ctx, root, scan.Options{})
+	nowFn := func() time.Time { return time.Unix(0, 0).UTC() }
+
+	_, _, err := scan.Run(ctx, root, scan.Options{}, nowFn)
 	if err == nil {
 		t.Fatalf("expected context cancellation error, got nil")
 	}

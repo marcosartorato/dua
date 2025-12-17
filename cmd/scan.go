@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/marcosartorato/dua/internal/format"
 	"github.com/marcosartorato/dua/internal/scan"
@@ -22,7 +23,7 @@ var scanCmd = &cobra.Command{
 			TopN: viper.GetInt("top"),
 		}
 
-		res, warnings, err := scan.Run(context.Background(), path, opts)
+		res, warnings, err := scan.Run(context.Background(), path, opts, time.Now)
 		for _, w := range warnings {
 			fmt.Fprintln(os.Stderr, "warn:", w)
 		}

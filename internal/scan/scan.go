@@ -4,16 +4,18 @@ import (
 	"context"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 type Result struct {
-	Root       string `json:"root"`
-	TotalSize  int64  `json:"total_size"`
-	TotalFiles int64  `json:"total_files"`
-	TotalDirs  int64  `json:"total_dirs"`
+	Root       string    `json:"root"`
+	TotalSize  int64     `json:"total_size"`
+	TotalFiles int64     `json:"total_files"`
+	TotalDirs  int64     `json:"total_dirs"`
+	Generated  time.Time `json:"generated_at"`
 }
 
-// TODO support options like MaxDepth, TopN, etc.
+// TODO support options like MaxDepth, etc.
 type Options struct {
 	MaxDepth int // -1 = unlimited
 	TopN     int
@@ -21,7 +23,7 @@ type Options struct {
 
 // Run scans the directory tree rooted at root and returns disk usage statistics.
 // It returns the total size in bytes, total number of files, and total number of directories.
-func Run(ctx context.Context, root string, opts Options) (Result, []string, error) {
+func Run(ctx context.Context, root string, opts Options, nowFunction func() time.Time) (Result, []string, error) {
 	// Ensure root exists
 	if _, err := os.Stat(root); err != nil {
 		return Result{}, nil, err
@@ -72,6 +74,7 @@ func Run(ctx context.Context, root string, opts Options) (Result, []string, erro
 		TotalSize:  totalSize,
 		TotalFiles: totalFiles,
 		TotalDirs:  totalDirs,
+		Generated:  nowFunction(),
 	}
 	return res, warnings, nil
 

@@ -20,7 +20,8 @@ var scanCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		path := args[0]
 		opts := scan.Options{
-			TopN: viper.GetInt("top"),
+			IncludeFiles: viper.GetBool("files"),
+			TopN:         viper.GetInt("top"),
 		}
 
 		res, warnings, err := scan.Run(context.Background(), path, opts, time.Now)
@@ -37,6 +38,17 @@ var scanCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(scanCmd)
 
+	// Helper to bind flags
+	mustBind := func(key string) {
+		if err := viper.BindPFlag(key, scanCmd.Flags().Lookup(key)); err != nil {
+			panic(err)
+		}
+	}
+
+	// Define flags
+	scanCmd.Flags().BoolP("files", "f", false, "Include per-file entries")
 	scanCmd.Flags().IntP("top", "n", 10, "Show only the top N largest entries")
-	_ = viper.BindPFlag("top", scanCmd.Flags().Lookup("top"))
+
+	mustBind("files")
+	mustBind("top")
 }
